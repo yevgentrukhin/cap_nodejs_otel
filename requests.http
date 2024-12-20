@@ -1,0 +1,41 @@
+# References
+@host = localhost:4004
+
+# Service
+
+## Geting all Customers
+### Get all properties of all Customers will create Audit Log
+curl -X GET 'http://{{host}}/odata/v4/processor/Customers' 
+--user 'alice:'
+
+### Get only the the non sensitive name of all Customers 
+curl -X GET 'http://{{host}}/odata/v4/processor/Customers?$select=name' 
+--user 'alice:'
+
+# AdminService
+
+### Create a new Customer 
+# @name create_customer
+curl -X POST 'http://{{host}}/odata/v4/admin/Customers' 
+--header 'Content-Type: application/json' 
+--user 'alice:' \
+--data-raw '{ "firstName": "Bob", "lastName": "Builder",  "email": "bob.builder@example.com"}'
+
+### Updating a customer with personal data details
+@customerID = {{create_customer.response.body.ID}}
+curl -X PATCH 'http://{{host}}/odata/v4/admin/Customers({{customerID}})' 
+--header 'Content-Type: application/json' 
+--user 'alice:'
+--data '{
+    "addresses": [
+        {
+            "city": "Walldorf",
+            "postCode": "69190",
+            "streetAddress": "Dietmar-Hopp-Allee 16"
+        }
+    ]
+}'
+
+### Red the just upated Customer and expand the Adress
+curl -X GET 'http://{{host}}/odata/v4/processor/Customers/{{customerID}}?$expand=addresses'
+--user 'alice:'
